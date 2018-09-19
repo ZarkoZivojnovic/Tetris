@@ -31,18 +31,19 @@ class Tetris {
     startTheGame(){
         this.addToTable();
         let interval = setInterval(() => {
-            this.findFullLines();
+            this.addToTable();
             if (this.isPossileToGoDown()) {
                 this.moveDown();
-                this.addToTable();
+                this.removeShape();
             } else {
                 this.board = JSON.parse(JSON.stringify(this.board));
-                this.shapeSpaceOnTable = JSON.parse(JSON.stringify(this.startSpaceOnTable));
+                this.findFullLines();
                 this.currentShape = this.nextShape;
                 this.nextShape = this.randomShape();
                 this.position = 0;
-                this.addToTable(true);
+                this.shapeSpaceOnTable = JSON.parse(JSON.stringify(this.startSpaceOnTable));
             }
+            this.addToTable();
         }, this.speed)
     }
 
@@ -57,13 +58,13 @@ class Tetris {
             } else if (event.key === "ArrowDown"){
                 if (this.isPossileToGoDown()) this.moveDown();
             }
+            this.removeShape();
             this.addToTable();
         })
     }
 
-    addToTable(notRemove) {
+    addToTable() {
         if (this.shapeSpaceOnTable.length === 0) this.shapeSpaceOnTable = JSON.parse(JSON.stringify(this.startSpaceOnTable));
-        if(!notRemove)this.removeShape();
         this.currentPlace = [];
         let placeOnTable = JSON.parse(JSON.stringify(this.shapeSpaceOnTable));
         for (let i = 0; i < this.shapes[this.currentShape][this.position].length; i++) {
@@ -75,13 +76,13 @@ class Tetris {
     }
 
     removeShape(){
-        let placeOnTable = JSON.parse(JSON.stringify(this.currentPlace));
         for (let i = 0; i < this.currentPlace.length; i++) {
-            this.board[placeOnTable[i][0]][placeOnTable[i][1]] = 0;
+            this.board[this.currentPlace[i][0]][this.currentPlace[i][1]] = 0;
         }
     }
 
     rotate() {
+        this.removeShape();
         if (this.position === 3) {
             this.position = 0;
         } else {
@@ -102,6 +103,7 @@ class Tetris {
     }
 
     move(leftOrRight){
+        this.removeShape();
         let increment = 1;
         if (leftOrRight === "left") increment = -1;
         for (let i = 0; i< this.shapeSpaceOnTable.length; i++) {
@@ -110,6 +112,7 @@ class Tetris {
     }
 
     moveDown(){
+        this.removeShape();
         for (let i = 0; i< this.shapeSpaceOnTable.length; i++) {
             this.shapeSpaceOnTable[i][0] += 1;
         }
@@ -136,20 +139,23 @@ class Tetris {
     }
 
     findFullLines(){
+        console.log("start finding full lines");
         for (let row = this.boardHeight-1; row >= 0; row--){
             let counter = 0;
             for (let field in this.board[row]){
                 if (this.board[row][field] === 1) counter++;
             }
-            if (counter === this.boardWidth-1){
+            if (counter === this.boardWidth){
+                this.addToTable();
                 this.removeFullLine(row);
+                this.board.unshift([0,0,0,0,0,0,0,0,0,0]);
+                this.findFullLines();
             }
         }
     }
 
     removeFullLine(row){
-        console.log(row);
-        console.log("remove");
+        this.board.splice(row,1);
     }
 
     randomShape() {
