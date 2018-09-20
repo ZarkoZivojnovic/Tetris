@@ -10,6 +10,7 @@ startBtn.addEventListener("click", event => {
     let tetris = new Tetris(10, 15);
     tetris.startTheGame();
     tetris.keyboardEvents();
+    document.getElementById("pauseNote").style.display = "block";
     const renderInterval = setInterval(() => {
         render(tetris.board);
         renderInfo(tetris);
@@ -41,20 +42,23 @@ function render(board) {
 }
 
 function renderInfo(info) {
-    divInfo.innerHTML = `<br>Points: ${info.points} ........ Level: ${info.level} ........ Time: ${info.time} sec. <br><br> Press "P" for pause`;
+    divInfo.innerHTML = `<br>Points: ${info.points} ........ Level: ${info.level} ........ Time: ${info.time} sec. <br>`;
 }
 
 function renderNextShape(shape) {
     const arr = shape.split(""),
-        [black, white] = ["⬛", "⬜"];
+        [black, white] = ["#", " "];
     let index = 0;
-    let print = "Next Shape:<br>";
+    let print = "Next Shape:<br><table class='nShape'>";
     for (let i = 0; i < 4; i++) {
+        print+="<tr>";
         for (let j = 0; j < 4; j++) {
-            print += arr[index] === "1" ? black : white;
+            const className = arr[index] === "1" ? "black" : "white";
+            print += "<td class="+ className +"> </td>";
             index++;
         }
-        print += "<br>"
+        print += "<tr>"
     }
+    print+="</table>";
     divNextShape.innerHTML = print;
 }

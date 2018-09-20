@@ -19,6 +19,11 @@ td {
     border: solid 1px gray;
 }
 
+#nextShape td {
+    width: 10px;
+    height: 10px;
+}
+
 .black {
     background-color: black;
 }
@@ -35,4 +40,9 @@ td {
 #nextShape {
     text-align: center;
 font-size: 15px
+}
+
+#pauseNote {
+    display: none;
+    text-align: center;
 }
