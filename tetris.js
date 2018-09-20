@@ -86,6 +86,7 @@ class Tetris {
     }
 
     gameOver() {
+        this.end = true;
         alert("GAME OVER! \n You won " + this.points + " points!")
     }
 

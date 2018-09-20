@@ -16,9 +16,6 @@ startBtn.addEventListener("click", event => {
         renderNextShape(tetris.shapes[tetris.nextShape][0]);
         if (tetris.end) {
             clearInterval(renderInterval);
-            divRender.innerHTML = "";
-            divInfo.innerHTML = "";
-            divNextShape.innerHTML = "";
         }
     }, 100);
     startBtn.style.display = "none";
