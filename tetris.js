@@ -13,6 +13,7 @@ class Tetris {
             z: ["0000000011100100", "0000010011000100", "0000010011100000", "0000010001100100"]
         };
         this.level = 1;
+        this.points = 0;
         this.position = 0;
         this.currentShape = this.randomShape();
         this.currentPlace = [];
@@ -25,27 +26,32 @@ class Tetris {
         ];
         this.shapeSpaceOnTable = [];
         this.speed = 1500;
-        this.speedIncrement = 100;
+        this.speedIncrement = 200;
     }
 
     startTheGame(){
         this.addToTable();
+        let speed = this.speed;
         let interval = setInterval(() => {
-            this.addToTable();
+            console.log(speed);
             if (this.isPossileToGoDown()) {
                 this.moveDown();
                 this.removeShape();
             } else {
-                this.board = JSON.parse(JSON.stringify(this.board));
-                this.findFullLines();
+                this.findAndRemoveFullLines();
                 this.currentShape = this.nextShape;
                 this.nextShape = this.randomShape();
                 this.position = 0;
                 this.shapeSpaceOnTable = JSON.parse(JSON.stringify(this.startSpaceOnTable));
             }
             this.addToTable();
-        }, this.speed)
+            if (speed !== this.speed){
+                clearInterval(interval);
+                this.startTheGame();
+            }
+        }, speed)
     }
+
 
     keyboardEvents(){
         document.addEventListener("keydown", event => {
@@ -138,24 +144,32 @@ class Tetris {
         return true;
     }
 
-    findFullLines(){
+    findAndRemoveFullLines(){
         console.log("start finding full lines");
+        let rowToAdd = 0;
         for (let row = this.boardHeight-1; row >= 0; row--){
             let counter = 0;
             for (let field in this.board[row]){
                 if (this.board[row][field] === 1) counter++;
             }
             if (counter === this.boardWidth){
-                this.addToTable();
-                this.removeFullLine(row);
-                this.board.unshift([0,0,0,0,0,0,0,0,0,0]);
-                this.findFullLines();
+                this.board[row] = undefined;
+                rowToAdd++;
             }
         }
+        for (let index = 0; index < rowToAdd; index++){
+            this.board.unshift([0,0,0,0,0,0,0,0,0,0]);
+        }
+        this.board = this.board.filter(elem => elem !== undefined);
+        if (rowToAdd > 0) this.addPoints(rowToAdd);
     }
 
-    removeFullLine(row){
-        this.board.splice(row,1);
+    addPoints(lines){
+        this.points += lines*2;
+        if (this.points%10 === 0 && this.points>0) {
+            this.level++;
+            if (this.speed >= 500) this.speed -= this.speedIncrement;
+        }
     }
 
     randomShape() {
