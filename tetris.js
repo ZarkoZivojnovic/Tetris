@@ -33,7 +33,6 @@ class Tetris {
         this.addToTable();
         let speed = this.speed;
         let interval = setInterval(() => {
-            console.log(speed);
             if (this.isPossileToGoDown()) {
                 this.moveDown();
                 this.removeShape();
@@ -43,6 +42,11 @@ class Tetris {
                 this.nextShape = this.randomShape();
                 this.position = 0;
                 this.shapeSpaceOnTable = JSON.parse(JSON.stringify(this.startSpaceOnTable));
+                if (this.isTheEnd()) {
+                    this.addToTable();
+                    this.gameOver();
+                    clearInterval(interval);
+                }
             }
             this.addToTable();
             if (speed !== this.speed){
@@ -52,6 +56,17 @@ class Tetris {
         }, speed)
     }
 
+    gameOver(){
+        alert("GAME OVER!<br>you won "+this.points+" points!")
+    }
+
+    isTheEnd(){
+        for (let i = 0; i< this.startSpaceOnTable.length; i++){
+            for (let j = 0; j<this.startSpaceOnTable[i].length; j++){
+                if (this.board[this.startSpaceOnTable[i][0]][this.startSpaceOnTable[i][1]] === 1) return true;
+            }
+        }
+    }
 
     keyboardEvents(){
         document.addEventListener("keydown", event => {
@@ -84,6 +99,12 @@ class Tetris {
     removeShape(){
         for (let i = 0; i < this.currentPlace.length; i++) {
             this.board[this.currentPlace[i][0]][this.currentPlace[i][1]] = 0;
+        }
+    }
+
+    returnTheShape(){
+        for (let i = 0; i < this.currentPlace.length; i++) {
+            this.board[this.currentPlace[i][0]][this.currentPlace[i][1]] = 1;
         }
     }
 
@@ -128,9 +149,17 @@ class Tetris {
         let nextPosition = [],
             lastDotInNextPosition;
         for (let i = 0; i< this.currentPlace.length; i++) {
-            nextPosition.push(this.currentPlace[i][0]+1);
+            nextPosition.push([[this.currentPlace[i][0]+1],[this.currentPlace[i][1]]]);
             lastDotInNextPosition = [this.currentPlace[i][0]+1, this.currentPlace[i][1]];
         }
+        this.removeShape();
+        for (let position in nextPosition){
+            if (this.board[nextPosition[position][0]]!== undefined && this.board[nextPosition[position][0]][nextPosition[position][1]] === 1) {
+                this.returnTheShape();
+                return false;
+            }
+        }
+        this.returnTheShape();
         if (this.board[lastDotInNextPosition[0]] !== undefined) return this.board[lastDotInNextPosition[0]][lastDotInNextPosition[1]]!==1;
         return nextPosition.toString().indexOf(this.boardHeight) === -1;
     }
@@ -140,12 +169,17 @@ class Tetris {
         for (let i = 0; i< this.currentPlace.length; i++) {
             const nextPlace = this.currentPlace[i][1]+increment;
             if (nextPlace < 0 || nextPlace >= this.boardWidth) return false;
+            this.removeShape();
+            if (this.board[this.currentPlace[i][0]][this.currentPlace[i][1]+increment] === 1) {
+                this.returnTheShape();
+                return false;
+            }
+            this.returnTheShape();
         }
         return true;
     }
 
     findAndRemoveFullLines(){
-        console.log("start finding full lines");
         let rowToAdd = 0;
         for (let row = this.boardHeight-1; row >= 0; row--){
             let counter = 0;
